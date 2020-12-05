@@ -1,5 +1,5 @@
 import React, { PureComponent, Component } from 'react';
-import {FlatList, View, Text} from 'react-native';
+import {FlatList, View, Text, TextInput, TouchableOpacity} from 'react-native';
 import CustomButton from './CustomButton';
 import ColorSurface from './ColorSurface';
 
@@ -14,7 +14,10 @@ const flatListData=[{key:'1',firstName:'ahmed', lastName:'Bouanani', class:'SIG3
    constructor(){
      super();
      this.state={
-         listData:flatListData
+         listData:flatListData,
+         firstName:'',
+         lastName:'',
+         classe:''
      }
    }
 
@@ -24,32 +27,57 @@ const flatListData=[{key:'1',firstName:'ahmed', lastName:'Bouanani', class:'SIG3
      <View style={{borderWidth:1}}>
          <Text>First Name: {item.item.firstName} </Text>
          <Text>First Name: {item.item.lastName} </Text>
-         <Text>Class: {item.item.class} </Text>
+         <Text>Class: {item.item.classe} </Text>
+         <TouchableOpacity onPress={()=>this.deleteItem(item.item.key)}><Text>Delete</Text></TouchableOpacity>
      </View>
      )
  }
 
- deleteItem(){
-
+ deleteItem(key){
+  var listData=this.state.listData.slice();
+  newListdata=listData.filter(item => item.key !== key);
+  this.setState({listData:newListdata})
     }
 
 addItem(){
-    var listData=this.state.listData;
-    console.log(listData)
-    listData.push({key:'7',firstName:'omar', lastName:'Bouanani', class:'SIG3'});
+    const {firstName, lastName, classe} = this.state;
+    var listData=this.state.listData.slice();
+    console.log({key:listData.length+1,firstName:firstName, lastName:lastName, classe:classe})
+    listData.push({key:listData.length+1,firstName:firstName, lastName:lastName, classe:classe});
     this.setState({listData:listData})
 }
+
+onFirstNameChange=(value)=>{
+this.setState({firstName:value})
+}
+
+onLastNameChange=(value)=>{
+  this.setState({lastName:value})
+  }
+
+  onClassChange=(value)=>{
+    this.setState({classe:value})
+    }
+
+  
 
   render (){
       const {listData}=this.state;
     return(
-          <>
-          <FlatList data={listData}
+          <React.Fragment>
+            <TextInput placeholder="First name" value={this.state.firstName}
+            onChangeText={(value)=>this.onFirstNameChange(value)}></TextInput>
+             <TextInput placeholder="Last name" value={this.state.lastName}
+            onChangeText={(value)=>this.onLastNameChange(value)}></TextInput>
+            <TextInput placeholder="Class" value={this.state.classe}
+            onChangeText={(value)=>this.onClassChange(value)}></TextInput>
+            <TouchableOpacity onPress={()=>this.addItem()}><Text>Insert</Text></TouchableOpacity>
+            
+          <FlatList data={this.state.listData}
+          extraData={this.state}
           renderItem={(item)=>this.renderFlatListItem(item)}
           keyExtractor={(item,index)=>  item.key.toString()}/>
-           <CustomButton onClick={()=>this.deleteItem()} color='red'/>
-          <CustomButton  onClick={()=>this.addItem()} color='blue'/>
-          </>
+          </React.Fragment>
     )
     }
   }

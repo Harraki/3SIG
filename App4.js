@@ -6,7 +6,7 @@ import axios from 'axios'
 
 
 
- class App1 extends PureComponent {
+ class App4 extends PureComponent {
    constructor(){
      super();
      this.state={
@@ -26,7 +26,7 @@ import axios from 'axios'
    getList=()=>{
     axios({
     method: 'get',
-    url:'https://extendsclass.com/mock/rest/044460422220bb9e524c6715f5054076/testSigF',
+    url:'https://extendsclass.com/mock/rest/044460422220bb9e524c6715f5054076/testSig',
     headers:{"Content-type":"application/json"}
     })
     .then( (response) => {
@@ -176,5 +176,5 @@ onEmailAddressChange=(value)=>{
   )
 
 
-export default App1;
+export default App4;
 

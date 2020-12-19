@@ -2,19 +2,16 @@ import React, { PureComponent, Component } from 'react';
 import {FlatList, View, Text, TextInput, TouchableOpacity, StyleSheet, Alert} from 'react-native';
 import {data1} from '__data/data.js';
 import Validations from './Validations';
-import { Col, Row, Grid } from "react-native-easy-grid";
-import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
-import { Dimensions } from 'react-native';
-import {Actions} from 'react-native-router-flux'
+import axios from 'axios'
 
-const windowWidth = Dimensions.get('window').width;
-const windowHeight = Dimensions.get('window').height;
+
 
  class App1 extends PureComponent {
    constructor(){
      super();
      this.state={
-         listData:data1,
+         listData:[],
+         error:'',
          firstName:'',
          lastName:'',
          classe:'',
@@ -25,9 +22,29 @@ const windowHeight = Dimensions.get('window').height;
      }
    }
 
+   
+   getList=()=>{
+    axios({
+    method: 'get',
+    url:'https://extendsclass.com/mock/rest/044460422220bb9e524c6715f5054076/testSigF',
+    headers:{"Content-type":"application/json"}
+    })
+    .then( (response) => {
+      console.log(response)
+      console.log(response.status)
+      console.log(response.data.data)
+     this.setState({listData:response.data.data})
+    })
+    .catch((error)=> {
+      Alert.alert('erreur')
+      console.log("error",error);
+    });
+   }
+
   
  renderFlatListItem(item){
-     return(
+  
+  return(
      <View style={{borderWidth:1, flexDirection:'row'}}>
        <View style={{flex:2}}>
          <Text style={{paddingBottom:5}}>First Name : {item.item.firstName} </Text>
@@ -53,6 +70,24 @@ addItem(){
     else {
     var listData=this.state.listData.slice();
     console.log({key:listData.length+1,firstName:firstName, lastName:lastName, classe:classe})
+    axios({
+      method: 'post',
+      url:'https://extendsclass.com/mock/rest/044460422220bb9e524c6715f5054076/testSigPost',
+      headers:{"Content-type":"application/json"},
+      data:{key:listData.length+1,firstName:firstName, lastName:lastName, classe:classe,phoneNumber:phoneNumber,emailAddress:phoneNumber }
+      })
+      .then( (response) => {
+        console.log(response)
+        console.log(response.status)
+       this.setState({listData:response.data.data})
+      })
+      .catch((error)=> {
+        Alert.alert('erreur post')
+        console.log("error",error);
+      });
+    
+    
+    
     listData.push({key:listData.length+1,firstName:firstName, lastName:lastName, classe:classe,phoneNumber:phoneNumber,emailAddress:phoneNumber });
     this.setState({listData:listData})
     }
@@ -81,57 +116,46 @@ onEmailAddressChange=(value)=>{
   emailAddressError:!Validations.EMAIL_REGEX.test(value)})
 }
 
-  componentDidMount(){
-    console.log('windowWidth',windowWidth)
-    console.log('windowHeight',windowHeight)
-   
-  }
-
-  navigate(){
-    Actions['app3']({message:'heeere'});
-  }
+  
 
   render (){
       const {listData}=this.state;
-     
+      console.log('rendering', listData)
     return(
-          <React.Fragment>
-            <Grid>
-            <Row size={4} style={{flexDirection:'column'}}>
-              <View>
+          <React.Fragment >
             <View style={{flexDirection: 'row', alignItems:'center'}}>
-            <Text style={{flex:1, fontSize:moderateScale(15,0.5)}}>firstName:</Text>
+            <Text style={{flex:1}}>firstName:</Text>
             <TextInput style={{flex:2.5}} placeholder="First name" value={this.state.firstName} underlineColorAndroid='grey'
             onChangeText={(value)=>this.onFirstNameChange(value)}></TextInput>
             </View>
             <View style={{flexDirection: 'row', alignItems:'center'}}>
-            <Text style={{flex:1, fontSize:moderateScale(15,0.5)}}>lastName:</Text>
+            <Text style={{flex:1}}>lastName:</Text>
              <TextInput style={{flex:2.5}} placeholder="Last name" value={this.state.lastName} underlineColorAndroid='grey'
             onChangeText={(value)=>this.onLastNameChange(value)}></TextInput>
             </View>
             <View style={{flexDirection: 'row', alignItems:'center'}}>
-            <Text style={{flex:1, fontSize:moderateScale(15,0.5)}}>class:</Text>
+            <Text style={{flex:1}}>class:</Text>
             <TextInput style={{flex:2.5}} placeholder="Class" value={this.state.classe} underlineColorAndroid='grey'
             onChangeText={(value)=>this.onClassChange(value)}></TextInput>
             </View>
             <View style={{flexDirection: 'row', alignItems:'center'}}>
-            <Text style={{flex:1, fontSize:moderateScale(15,0.5)}}>Email address {this.state.emailAddressError?'*':null}:</Text>
+            <Text style={{flex:1}}>Email address {this.state.emailAddressError?'*':null}:</Text>
             <TextInput style={{flex:2.5}} placeholder="Email address" value={this.state.emailAddress} underlineColorAndroid='grey'
             onChangeText={(value)=>this.onEmailAddressChange(value)}></TextInput>
             </View>
             <View style={{flexDirection: 'row', alignItems:'center'}}>
-            <Text style={{flex:1, fontSize:moderateScale(15,0.5)}}>Phone Number{this.state.phoneNumberError?'*':null}:</Text>
+            <Text style={{flex:1}}>Phone Number{this.state.phoneNumberError?'*':null}:</Text>
             <TextInput style={{flex:2.5}} placeholder="Phone Number" value={this.state.phoneNumber} underlineColorAndroid='grey'
             onChangeText={(value)=>this.onPhoneNumberChange(value)}></TextInput>
             </View>
-            </View>
-            </Row>
-            <Row size={1} style={{justifyContent:'center',alignItems:'center'}}>
-            <TouchableOpacity style={[styles.buttonStyle]} onPress={()=>this.addItem()}><Text style={{color:'white', fontSize:moderateScale(15,0.5)}}>Insert</Text></TouchableOpacity>
-            <TouchableOpacity style={[styles.buttonStyle]} onPress={()=>this.navigate()}><Text style={{color:'white', fontSize:moderateScale(15,0.5)}}>Navigate</Text></TouchableOpacity>
-            </Row>
-            </Grid>
-            </React.Fragment>
+            <TouchableOpacity style={styles.buttonStyle} onPress={()=>this.addItem()}><Text style={{color:'white'}}>Insert</Text></TouchableOpacity>
+            <TouchableOpacity style={styles.buttonStyle} onPress={()=>this.getList()}><Text style={{color:'white'}}>GetList</Text></TouchableOpacity>
+            
+          <FlatList data={this.state.listData}
+          extraData={this.state}
+          renderItem={(item)=>this.renderFlatListItem(item)}
+          keyExtractor={(item,index)=>  {console.log("item:",item, index);item.key.toString();}}/>
+          </React.Fragment>
     )
     }
   }
@@ -139,12 +163,12 @@ onEmailAddressChange=(value)=>{
   const styles= StyleSheet.create({
     buttonStyle:{
     alignSelf: 'center',
-    width:moderateScale(100,0.5),
+    width:100,
     marginBottom:10,
     alignItems:'center',
     justifyContent:'center',
     backgroundColor:'black',
-    height:verticalScale(30),
+    height:30,
     borderWidth: 0.5,
     borderRadius: 4,
     borderColor: 'blue'}
